@@ -1,66 +1,99 @@
-# Dependency Visualization Tool
+# Python Dependency Analyzer
 
-This tool is designed to visualize the dependencies of Python files within a project. It generates an interactive HTML graph using the G6 library to represent the dependencies between different Python modules.
+A tool to analyze dependencies between Python files in a project and generate interactive visualization.
 
-## Features
+## New Command-Line Interface
 
-- **Dependency Analysis**: Parses Python files to extract import statements and identifies both internal and external dependencies.
-- **Interactive Graph**: Generates an interactive HTML graph that visualizes the dependencies between modules.
-- **Directory Support**: Can process a single Python file or an entire directory of Python files.
+The tool now provides a command-line interface to generate dependency analysis graphs for Python projects.
 
-## Usage
+### Installation
 
-### Prerequisites
+No installation required. Just ensure you have Python 3.7+ installed.
 
-- Python 3.x
-- Required Python packages (if any) should be installed.
+### Usage
 
-### Running the Tool
-
-You can run the tool using either the Python script or the provided executable.
-
-#### Using Python Script
-
-1. Navigate to the directory containing the `drawDependence.py` script.
-2. Run the script with the following command:
-
-   ```bash
-   python drawDependence.py <path_to_python_file_or_directory>
-   ```
-
-   Replace `<path_to_python_file_or_directory>` with the path to the Python file or directory you want to analyze.
-
-#### Using Executable
-
-1. Ensure that `drawDependence.exe` is in your project directory.
-2. Run the executable with the following command:
-
-   ```bash
-   drawDependence.exe <path_to_python_file_or_directory>
-   ```
-
-   Replace `<path_to_python_file_or_directory>` with the path to the Python file or directory you want to analyze.
-
-### Output
-
-The tool will generate an HTML file for each Python file processed. The HTML file will be named the same as the Python file but with a `.html` extension. For example, if you process `example.py`, the output will be `example.html`.
-
-The generated HTML file contains an interactive graph that visualizes the dependencies between the modules in your project.
-
-## Example
-
-Suppose you have a Python file `example.py` with the following content:
-
-```python
-import os
-from utils.helper import some_function
-import numpy as np
+#### As a module:
+```bash
+python -m dependency_analyzer /path/to/project [options]
 ```
 
-Running the tool on `example.py` will generate an HTML file `example.html` that visualizes the dependencies between `example.py`, `utils/helper.py`, and the external package `numpy`.
+#### Directly:
+```bash
+python cli.py /path/to/project [options]
+```
 
-## Notes
+### Options
 
-- The tool currently supports standard Python import statements.
-- External packages are identified but not visualized in the graph.
-- The graph layout is automatically generated, and nodes may overlap if there are many dependencies. You can manually adjust the positions in the generated HTML file if needed.
+- `project_path`: Path to the Python project to analyze (default: current directory)
+- `--no-visual`: Disable HTML visualization generation
+- `--output`, `-o`: Output path for the dependency graph (default: dependency_graph.html in project directory)
+- `--json`, `-j`: Output dependency graph as JSON to stdout
+- `--json-file`: Save dependency graph as JSON to specified file
+
+### Examples
+
+1. **Basic analysis with visualization**:
+   ```bash
+   python -m dependency_analyzer /path/to/project
+   ```
+   Generates `dependency_graph.html` in the project directory.
+
+2. **JSON output only**:
+   ```bash
+   python -m dependency_analyzer /path/to/project --json
+   ```
+
+3. **Save JSON to file**:
+   ```bash
+   python -m dependency_analyzer /path/to/project --json-file dependencies.json
+   ```
+
+4. **Custom output path**:
+   ```bash
+   python -m dependency_analyzer /path/to/project --output /tmp/my_graph.html
+   ```
+
+5. **Disable visualization**:
+   ```bash
+   python -m dependency_analyzer /path/to/project --no-visual --json
+   ```
+
+### Output Format
+
+The dependency graph is represented as a dictionary where keys are source file paths and values are lists of dependent file paths:
+
+```json
+{
+  "/path/to/file_a.py": [
+    "/path/to/file_b.py",
+    "/path/to/file_c.py"
+  ],
+  "/path/to/file_b.py": [
+    "/path/to/file_d.py"
+  ]
+}
+```
+
+### Features
+
+- Parses Python files using AST
+- Handles both absolute and relative imports
+- Ignores standard library imports
+- Excludes common directories (__pycache__, .git, venv, etc.)
+- Generates interactive HTML visualization using AntV G6
+- Supports JSON output for programmatic use
+
+### Visualization
+
+The HTML visualization provides an interactive graph where you can:
+- Drag nodes
+- Zoom in/out
+- See dependencies as directed edges
+- Layout automatically arranges nodes for readability
+
+### Limitations
+
+- Only analyzes .py files
+- Does not follow dynamic imports (importlib, __import__, etc.)
+- Does not handle conditional imports based on runtime conditions
+- Standard library imports are filtered out
